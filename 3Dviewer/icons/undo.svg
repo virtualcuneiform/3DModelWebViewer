@@ -1,0 +1,15 @@
+<svg id="UndoIcon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 574.93 574.93">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #fff;
+        stroke: #000;
+        stroke-miterlimit: 10;
+        stroke-width: 8px;
+      }
+    </style>
+  </defs>
+  <title>undo</title>
+  <rect class="cls-1" x="4" y="4" width="566.93" height="566.93" rx="85.04" ry="85.04"/>
+  <path d="M384.79,438c168-42,150-278-55.52-274.54h-153V127.89l-49.91,32.76-49.9,32.72,49.9,32.72,49.86,32.73V223.27H334.8c131-.27,128,125.73,34,158.73Z" transform="translate(0 0)"/>
+</svg>
