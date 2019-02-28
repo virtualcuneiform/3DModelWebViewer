@@ -16,7 +16,7 @@ var controlInfo;
 var moveStart = new THREE.Vector2();
 var oldPosition = new THREE.Vector3();
 var pinchStart = 0;
-var worldControl = null;
+//var worldControl = null;
 var directionalLight;
 
 //var collisionOn = false;
@@ -44,16 +44,18 @@ var XMLHttpRequests = Array(N);
 $(function () {
 	// Setup iconbar
 	var icons = $("<div>", { id: "iconbar" , class: "icons"});
-	var lowericons = $("<div>", { id: "lowericonbar" , class: "icons"});
+	//var lowericons = $("<div>", { id: "lowericonbar" , class: "icons"});
 	icons.append($("<img>", { id: "rIcon", src: "3Dviewer/icons/rotate.svg", alt: "Rotate icon", title: "Rotate Fragment", onMouseDown: "mouseDownLightCheck();", onclick: "onRotateClick();", ontouchstart: "onRotateClick();" }));
-	icons.append($("<img>", { id: "mIcon", src: "3Dviewer/icons/move.svg", alt: "Move icon", title: "Move Fragment", onMouseDown: "mouseDownLightCheck();", onclick: "onMoveClick();", ontouchstart: "onMoveClick();" }));
-	icons.append($("<img>", { id: "vIcon", src: "3Dviewer/icons/view.svg", alt: "View icon", title: "Move Viewpoint", onMouseDown: "mouseDownLightCheck();", onclick: "onViewClick();", ontouchstart: "onViewClick();" }));
-	icons.append($("<img>", { id: "uIcon", src: "3Dviewer/icons/undo.svg", alt: "Undo icon", title: "Undo", onMouseDown: "mouseDownLightCheck();", onclick: "onUndoClick();", ontouchstart: "onUndoClick();" }));
+	icons.append($("<img>", { id: "mIcon", src: "3Dviewer/icons/move.svg", alt: "Move icon", title: "Move Fragment", onMouseDown: "mouseDownLightCheck();", onclick: "onMoveClick();", ontouchstart: "onMoveClick();", style: "margin-bottom:18px" }));
+	//icons.append($("<img>", { id: "vIcon", src: "3Dviewer/icons/view.svg", alt: "View icon", title: "Move Viewpoint", onMouseDown: "mouseDownLightCheck();", onclick: "onViewClick();", ontouchstart: "onViewClick();" }));
+	icons.append($("<img>", { id: "uIcon", src: "3Dviewer/icons/undo.svg", alt: "Undo icon", title: "Undo", onMouseDown: "mouseDownLightCheck();", onclick: "onUndoClick();", ontouchstart: "onUndoClick();"}));
+	icons.append($("<img>", { id: "xIcon", src: "3Dviewer/icons/reset.svg", alt: "Reset icon", title: "Reset View", onMouseDown: "mouseDownLightCheck();", onclick: "onResetClick();", ontouchstart: "onResetClick();", style: "margin-bottom:18px"  }));
+	icons.append($("<img>", { id: "lIcon", src: "3Dviewer/icons/light.svg", alt: "Light icon", title: "Move Light Source", onMouseDown: "mouseDownLightCheck();", onclick: "onLightClick();", ontouchstart: "onLightClick();" }));	
 	icons.append($("<img>", { id: "fIcon", src: "3Dviewer/icons/fullscreen.svg", alt: "Fullscreen icon", title: "Fullscreen", onMouseDown: "mouseDownLightCheck();", onclick: "onFullScreenClick();", ontouchstart: "onFullScreenClick();" }));
-	lowericons.append($("<img>", { id: "lIcon", src: "3Dviewer/icons/light.svg", alt: "Light icon", title: "Move Light Source", onMouseDown: "mouseDownLightCheck();", onclick: "onLightClick();", ontouchstart: "onLightClick();" }));
+
 	$("#container").append(icons);
-	$("#container").append(lowericons);
-	updateIcons("#vIcon");
+	//$("#container").append(lowericons);
+	updateIcons("#rIcon");
 	$(document).on('webkitfullscreenchange mozfullscreenchange fullscreenchange MSFullscreenChange', onFullScreenChange);
 
 	var objectID = getURLParameter('ObjectID');
@@ -64,19 +66,11 @@ $(function () {
         camerazStart = camerazStartPreset;
     cameraz = camerazStart;
 	camera.position.z = cameraz;
-    for(var n = 0; n < N; n++){
-        controls[n] = new Arcball(viewWidth, viewHeight);
-        if(importModels[n].xoffset == null)
-            controls[n].position.x = 30*Math.cos(n*2*Math.PI/N);
-        else
-            controls[n].position.x = importModels[n].xoffset;
-        if(importModels[n].yoffset == null)
-            controls[n].position.y = 30*Math.sin(n*2*Math.PI/N);
-        else
-            controls[n].position.y = importModels[n].yoffset;
-    }
-	worldControl = new Arcball(viewWidth, viewHeight);
-	saveState();
+
+	
+	
+	//worldControl = new Arcball(viewWidth, viewHeight);
+	
 
 	// Set-up 3D scene and add lighting and camera
 	scene = new THREE.Scene();
@@ -98,6 +92,9 @@ $(function () {
     //directionalLight.position = oldLightPos;
 	scene.add(camera);
 
+	resetControls();
+	saveState();
+	
     // Load 3D models
     for(var n = 0; n < N; n++)
     	loadFrag(importModels[n].name, n);	
@@ -139,7 +136,7 @@ $(function () {
 				//var dZ = pinchStart - t0.length();
 				//cameraz += dZ / 10; 
 				cameraz = camerazStart * pinchStart / t0.length();
-				if (cameraz < 60) cameraz = 60;
+				if (cameraz < 30) cameraz = 30;
 				//var mid = midPoint(mouseData);
 				//worldControl.drag(mid.x, mid.y, true);
 			}
@@ -154,9 +151,9 @@ $(function () {
 				case MODE.MOVE:
 					controls[controlInfo.index].drag(mouseData.offsetX, mouseData.offsetY, false);
 					break;
-				case MODE.VIEW:
-					worldControl.drag(mouseData.offsetX, mouseData.offsetY, true);
-                    break;
+				//case MODE.VIEW:
+				//	worldControl.drag(mouseData.offsetX, mouseData.offsetY, true);
+                //  break;
                 case MODE.LIGHT:
                     setLight(mouseData);
                     break;
@@ -173,18 +170,34 @@ $(function () {
 			delta = - mouseData.originalEvent.detail / 3;
 		}
 		cameraz -= delta;
-		if (cameraz < 60) cameraz = 60;
+		if (cameraz < 30) cameraz = 30;
 	});
    
    $("#progress").offset({
       top: 200 + propos
    });
    $("#progress").show();	
-   $("#cdlilink").text("Main CDLI archival view of " + objectID);
+   $("#cdlilink").text(objectID);
    $("#cdlilink").attr("href", "https://cdli.ucla.edu/search/archival_view.php?ObjectID=" + objectID);
 	animate();
 	if(N==1) onRotateClick();
 });
+function resetControls(){
+	controls[0] = new Arcball(viewWidth, viewHeight);
+	cameraz = camerazStart;
+	directionalLight.position.set(150, 150, -40);
+//	for(var n = 0; n < N; n++){
+//		controls[n] = new Arcball(viewWidth, viewHeight);
+//		if(importModels[n].xoffset == null)
+//			controls[n].position.x = 30*Math.cos(n*2*Math.PI/N);
+//		else
+//			controls[n].position.x = importModels[n].xoffset;
+//		if(importModels[n].yoffset == null)
+//			controls[n].position.y = 30*Math.sin(n*2*Math.PI/N);
+//		else
+//			controls[n].position.y = importModels[n].yoffset;
+//	}
+}
 
 function onMouseDown(mouseData) {
 	mouseData = fixOffset(mouseData);
@@ -198,9 +211,9 @@ function onMouseDown(mouseData) {
 			controls[controlInfo.index].mouseDown(mouseData.offsetX, mouseData.offsetY, false);
 			calcMovementVector();
 			break;
-		case MODE.VIEW:
-			worldControl.mouseDown(mouseData.offsetX, mouseData.offsetY, true);
-            break;
+		//case MODE.VIEW:
+		//	worldControl.mouseDown(mouseData.offsetX, mouseData.offsetY, true);
+        //    break;
         case MODE.LIGHT:
             setLight(mouseData);
             break;
@@ -275,6 +288,11 @@ function onViewClick() {
 function onUndoClick() {
 	restoreState();
 }
+function onResetClick() {
+	saveState();
+	resetControls();
+	if(mode == MODE.NONE) mode = MODE.LIGHT;
+}
 
 function onFullScreenClick() {
 	elem = $('.container').get()[0];
@@ -333,7 +351,7 @@ function onFullScreenChange() {
 	camera.aspect = viewWidth / viewHeight;
 	camera.position.z = cameraz;
 	controls[0].resize(viewWidth, viewHeight);
-	worldControl.resize(viewWidth, viewHeight);
+	//worldControl.resize(viewWidth, viewHeight);
 }
 
 function updateIcons(sel) {
@@ -346,13 +364,13 @@ function saveState() {
     for(var n = 0; n < N; n++){
         undoState.controls[n] = controls[n].getState();
     }
-	undoState.world = worldControl.getState();
+	//undoState.world = worldControl.getState();
 }
 function restoreState() {
 	for(var n = 0; n < N; n++){
         controls[n].setState(undoState.controls[n]);
     }
-	worldControl.setState(undoState.world);
+	//worldControl.setState(undoState.world);
 }
 function findNearestFrag(x, y) {
 	var d = new Array(1e8, 1e8);
@@ -369,7 +387,7 @@ function findNearestFrag(x, y) {
 		}
 	}
 	var i = (N==1) ? 0 : (mid[0].length() < mid[1].length() ? 0 : 1);
-	controls[i].viewRotation = worldControl.rotation;
+	//controls[i].viewRotation = worldControl.rotation;
 	var ret = { index: i, centre: new THREE.Vector2(mid[i].x + x, mid[i].y + y) };
 	return ret;
 }
@@ -377,11 +395,11 @@ function findNearestFrag(x, y) {
 function calcMovementVector() {
 	var Ax = new THREE.Vector3(1.0, 0, 0);
 	var Ay = new THREE.Vector3(0, -1.0, 0);
-	var camRot = new THREE.Quaternion();
-	camRot.copy(worldControl.rotation);
-	camRot.conjugate();
-	Ax.applyQuaternion(camRot);
-	Ay.applyQuaternion(camRot);
+	//var camRot = new THREE.Quaternion();
+	//camRot.copy(worldControl.rotation);
+	//camRot.conjugate();
+	//Ax.applyQuaternion(camRot);
+	//Ay.applyQuaternion(camRot);
 	var sFactor = new THREE.Vector4(1.0, 1.0, 1.0, 1.0);
 	sFactor.applyMatrix4(camera.projectionMatrix);
 
@@ -436,14 +454,14 @@ function animate() {
 			A[n] = frags[n].matrix.clone();
 		}
 	}
-	var camRot = new THREE.Quaternion();
-	camRot.copy(worldControl.rotation);
-	camRot.conjugate();
+	//var camRot = new THREE.Quaternion();
+	//camRot.copy(worldControl.rotation);
+	//camRot.conjugate();
 
 	camera.position.set(0, 0, cameraz);
-	camera.position.applyQuaternion(camRot);
+	//camera.position.applyQuaternion(camRot);
 	camera.up.set(0, 1.0, 0);
-	camera.up.applyQuaternion(camRot);
+	//camera.up.applyQuaternion(camRot);
 	camera.updateProjectionMatrix();
 	camera.lookAt(scene.position);
 
