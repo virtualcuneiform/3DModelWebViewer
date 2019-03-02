@@ -20,6 +20,7 @@ function Arcball(newWidth, newHeight) {
   this.moveVectors = new THREE.Matrix3();
   
   this.animateTarget = {q:null, p:null};
+  this.isAnimating = false;
   
   this.EPSILON = 1e-8;  
 }
@@ -70,6 +71,7 @@ Arcball.prototype.drag = function(mx, my, isRotating) {
 }
 
 Arcball.prototype.startAnimation = function(target){
+	this.isAnimating = true;
 	this.oldPosition.copy(this.position);
 	this.oldRotation.copy(this.rotation);
   this.animateTarget = target;
@@ -80,6 +82,7 @@ Arcball.prototype.startAnimation = function(target){
 }
 
 Arcball.prototype.updateAnimation = function(a){
+	if(this.isAnimating){
 	this.position.copy(this.oldPosition);
 	this.position.multiplyScalar(1-a);
 	var tPos = new THREE.Vector3();
@@ -89,6 +92,7 @@ Arcball.prototype.updateAnimation = function(a){
 	
 	this.rotation.copy(this.oldRotation);
 	this.rotation.slerp(this.animateTarget.q, a);
+	}
 }
 
 Arcball.prototype.setVectors = function(vx, vy){

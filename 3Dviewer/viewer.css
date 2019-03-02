@@ -29,7 +29,7 @@ img {
 	border: 1px solid #A0A0A0;
 }
 .infoText {
-	text-align: center;
+	text-align: right;
 }
 :any-link{
   color: white;
