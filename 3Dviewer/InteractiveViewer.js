@@ -99,7 +99,7 @@ $(function () {
 	// Create the WebGL renderer and add to the web page
 	//renderer = new THREE.WebGLRenderer({antialias: true});
     var aaflag = getURLParameter('antialias');
-    if(aaflag == null) aaflag = false;
+    if(aaflag == null) aaflag = true;
     renderer = new THREE.WebGLRenderer({antialias: aaflag});
 	renderer.setSize(viewWidth, viewHeight);
 	renderer.setClearColor($("body").css("background-color"));
@@ -408,6 +408,7 @@ function calcMovementVector() {
 function loadFrag(objectID, fragIndex){
     var loader = new THREE.PLYLoader();
     loader.load('models/' + objectID + '.ply', function(geometry) {
+		// on ply loading complete
        geometry.computeBoundingSphere();
        geometry.computeFaceNormals();
        geometry.computeVertexNormals();
@@ -433,7 +434,12 @@ function loadFrag(objectID, fragIndex){
 			frags[fragIndex] = new THREE.Mesh(geometry, material);
 			scene.add(frags[fragIndex]);
          });
-    }, function() {} );
+    }, undefined, 
+	// on ply loading error
+	function(url) {
+		$("#progressGif").hide();
+		$("#message").text("Error loading the 3D model data. Error code " + url.target.status + " (" + url.target.statusText + ")");
+	} );
  }
 
 function animate() {
